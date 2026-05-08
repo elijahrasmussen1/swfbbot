@@ -9,6 +9,14 @@ const COMMANDS_DIR = join(__dirname, "..", "commands");
  * Recursively walks the commands directory and registers every exported
  * command module onto `client.commands`.
  *
+ * Each command module must export:
+ *   - `name`    {string}   The command name (without prefix)
+ *   - `execute` {Function} Handler: (message, args) => Promise<void>
+ *
+ * Optional exports:
+ *   - `ownerOnly` {boolean} Restrict execution to owner IDs
+ *   - `description` {string} Short description of the command
+ *
  * @param {import("discord.js").Client} client
  */
 export async function loadCommands(client) {
@@ -25,15 +33,15 @@ export async function loadCommands(client) {
       ).href;
       const command = await import(filePath);
 
-      if (!command.data || !command.execute) {
+      if (!command.name || !command.execute) {
         console.warn(
-          `[Commands] Skipping ${file}: missing "data" or "execute" export.`
+          `[Commands] Skipping ${file}: missing "name" or "execute" export.`
         );
         continue;
       }
 
-      client.commands.set(command.data.name, command);
-      console.log(`[Commands] Registered: ${command.data.name}`);
+      client.commands.set(command.name, command);
+      console.log(`[Commands] Registered: ${command.name}`);
     }
   }
 }

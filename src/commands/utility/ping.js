@@ -1,22 +1,17 @@
-import { SlashCommandBuilder } from "discord.js";
-
-export const data = new SlashCommandBuilder()
-  .setName("ping")
-  .setDescription("Checks the bot response time.");
+export const name = "ping";
+export const description = "Checks the bot response time.";
 
 /**
- * @param {import("discord.js").ChatInputCommandInteraction} interaction
+ * @param {import("discord.js").Message} message
+ * @param {string[]} _args
  */
-export async function execute(interaction) {
-  const sent = await interaction.reply({
-    content: "Pinging...",
-    fetchReply: true,
-  });
+export async function execute(message, _args) {
+  const sent = await message.channel.send("Pinging...");
 
-  const roundtrip = sent.createdTimestamp - interaction.createdTimestamp;
-  const heartbeat = Math.round(interaction.client.ws.ping);
+  const roundtrip = sent.createdTimestamp - message.createdTimestamp;
+  const heartbeat = Math.round(message.client.ws.ping);
 
-  await interaction.editReply(
-    `Pong! Roundtrip: ${roundtrip}ms | WebSocket heartbeat: ${heartbeat}ms`
+  await sent.edit(
+    `Pong. Roundtrip: ${roundtrip}ms | WebSocket heartbeat: ${heartbeat}ms`
   );
 }

@@ -1,28 +1,27 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { getUniverse } from "../../roblox/api.js";
 
-export const data = new SlashCommandBuilder()
-  .setName("gamestatus")
-  .setDescription("Displays the current status of Survive Floods for Brainrots.");
+export const name = "gamestatus";
+export const description = "Displays the current status of Survive Floods for Brainrots.";
 
 /**
- * @param {import("discord.js").ChatInputCommandInteraction} interaction
+ * @param {import("discord.js").Message} message
+ * @param {string[]} _args
  */
-export async function execute(interaction) {
-  await interaction.deferReply();
-
+export async function execute(message, _args) {
   let universe;
   try {
     universe = await getUniverse();
   } catch (error) {
     console.error("[gamestatus] Failed to fetch universe data:", error);
-    await interaction.editReply(
+    await message.reply(
       "Failed to retrieve game data from Roblox. Please try again later."
     );
     return;
   }
 
   const embed = new EmbedBuilder()
+    .setColor(0x0a84ff)
     .setTitle("Survive Floods for Brainrots")
     .setURL(
       `https://www.roblox.com/games/${process.env.ROBLOX_PLACE_ID}`
@@ -47,5 +46,5 @@ export async function execute(interaction) {
     .setTimestamp()
     .setFooter({ text: "Data provided by Roblox Open Cloud" });
 
-  await interaction.editReply({ embeds: [embed] });
+  await message.channel.send({ embeds: [embed] });
 }
