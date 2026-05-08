@@ -22,15 +22,15 @@ const COLLECTOR_TIMEOUT_MS = 5 * 60 * 1_000; // 5 minutes
  * `disabled: true` marks options that are reserved for future use.
  */
 const FILTER_OPTIONS = [
-  { label: "Modlogs",      value: "all",       description: "All cases",                 types: null },
-  { label: "Warns",        value: "warn",      description: "Warnings only",             types: ["warn"] },
-  { label: "Mutes",        value: "mute",      description: "Mutes only",                types: ["mute"] },
-  { label: "Kicks",        value: "kick",      description: "Kicks only",                types: ["kick"] },
-  { label: "Bans",         value: "ban",       description: "Bans and permanent bans",   types: ["ban", "permban"] },
-  { label: "Wipes",        value: "wipe",      description: "Coming soon",               types: ["wipe"],      disabled: true },
-  { label: "Demotions",    value: "demotion",  description: "Coming soon",               types: ["demotion"],  disabled: true },
-  { label: "Promotions",   value: "promotion", description: "Coming soon",               types: ["promotion"], disabled: true },
-  { label: "Staff Warns",  value: "staffwarn", description: "Coming soon",               types: ["staffwarn"], disabled: true },
+  { label: "Modlogs",     value: "all",       types: null },
+  { label: "Warns",       value: "warn",      types: ["warn"] },
+  { label: "Mutes",       value: "mute",      types: ["mute"] },
+  { label: "Kicks",       value: "kick",      types: ["kick"] },
+  { label: "Bans",        value: "ban",       types: ["ban", "permban"] },
+  { label: "Wipes",       value: "wipe",      types: ["wipe"] },
+  { label: "Demotions",   value: "demotion",  types: ["demotion"] },
+  { label: "Promotions",  value: "promotion", types: ["promotion"] },
+  { label: "Staff Warns", value: "staffwarn", types: ["staffwarn"] },
 ];
 
 /**
@@ -89,7 +89,7 @@ function buildComponents(page, totalPages, disabled = false) {
   const buttonRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId("search_prev")
-      .setLabel("Previous")
+      .setLabel("Prev")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(disabled || page <= 1),
     new ButtonBuilder()
@@ -99,7 +99,7 @@ function buildComponents(page, totalPages, disabled = false) {
       .setDisabled(disabled || page >= totalPages),
     new ButtonBuilder()
       .setCustomId("search_last")
-      .setLabel("Last Page")
+      .setLabel("Last")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(disabled || totalPages <= 1),
   );
@@ -114,7 +114,6 @@ function buildComponents(page, totalPages, disabled = false) {
         new StringSelectMenuOptionBuilder()
           .setLabel(opt.label)
           .setValue(opt.value)
-          .setDescription(opt.description)
       )
     );
 
