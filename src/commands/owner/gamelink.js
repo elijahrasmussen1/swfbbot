@@ -32,7 +32,7 @@ export async function execute(message, _args) {
   const attachment = new AttachmentBuilder(IMAGE_PATH, { name: IMAGE_NAME });
 
   const embed = new EmbedBuilder()
-    .setColor(0xff69b4)
+    .setColor(0xf7140f)
     .setTitle("🎮 Game Link 🎮")
     .setDescription("The official Game Link for Survive Floods for Brainrots!")
     .setImage(`attachment://${IMAGE_NAME}`)
