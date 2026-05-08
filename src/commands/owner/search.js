@@ -115,7 +115,6 @@ function buildComponents(page, totalPages, disabled = false) {
           .setLabel(opt.label)
           .setValue(opt.value)
           .setDescription(opt.description)
-          .setDisabled(disabled || (opt.disabled ?? false))
       )
     );
 
