@@ -1,3 +1,5 @@
+// DEPRECATED: This module has been superseded by src/utils/modlog.js which
+// supports all action types and global case IDs. Kept for reference only.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

@@ -1,9 +1,11 @@
 import { EmbedBuilder } from "discord.js";
-import { getWarnings } from "../../utils/warnings.js";
+import { getCases } from "../../utils/modlog.js";
 
 export const name = "search";
 export const ownerOnly = true;
-export const description = "Searches a user's modlogs by Discord user ID.";
+export const description = "Searches a user's modlog cases by Discord user ID.";
+
+const CASES_PER_PAGE = 5;
 
 /**
  * @param {import("discord.js").Message} message
@@ -16,7 +18,7 @@ export async function execute(message, args) {
     const usageEmbed = new EmbedBuilder()
       .setColor(0xf7140f)
       .setTitle("Correct Usage")
-      .setDescription('`-search <userId>`');
+      .setDescription("`-search <userId> [page]`");
     await message.reply({ embeds: [usageEmbed] });
     return;
   }
@@ -25,30 +27,35 @@ export async function execute(message, args) {
   try {
     user = await message.client.users.fetch(userId);
   } catch {
-    const embed = new EmbedBuilder()
-      .setColor(0xf7140f)
-      .setDescription("❌ Could not find a user with that ID.");
-    await message.reply({ embeds: [embed] });
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0xf7140f)
+          .setDescription("❌ Could not find a user with that ID."),
+      ],
+    });
     return;
   }
 
-  const warnings = getWarnings(userId);
+  const cases = getCases(userId);
+  const totalPages = Math.max(1, Math.ceil(cases.length / CASES_PER_PAGE));
+  const requestedPage = Math.max(1, parseInt(args[1] ?? "1", 10) || 1);
+  const page = Math.min(requestedPage, totalPages);
+  const start = (page - 1) * CASES_PER_PAGE;
+  const pageCases = cases.slice(start, start + CASES_PER_PAGE);
 
   const embed = new EmbedBuilder()
     .setColor(0xf7140f)
     .setAuthor({ name: user.username, iconURL: user.displayAvatarURL({ size: 64 }) })
     .setThumbnail(user.displayAvatarURL({ size: 256 }));
 
-  if (warnings.length === 0) {
+  if (cases.length === 0) {
     embed.setDescription("No modlogs found for this user.");
   } else {
-    const lines = warnings.map(
-      (w, i) =>
-        `**${i + 1}.** ${w.reason} — <t:${Math.floor(new Date(w.timestamp).getTime() / 1000)}:R> by <@${w.moderatorId}>`
-    );
+    const lines = pageCases.map((c) => `**Case #${c.caseId}** - ${c.type}\n${c.reason}`);
     embed
-      .setTitle(`Modlogs — ${warnings.length} warning${warnings.length === 1 ? "" : "s"}`)
-      .setDescription(lines.join("\n"));
+      .setDescription(lines.join("\n\n"))
+      .setFooter({ text: `Page ${page}/${totalPages} | Results: ${cases.length}` });
   }
 
   await message.channel.send({ embeds: [embed] });

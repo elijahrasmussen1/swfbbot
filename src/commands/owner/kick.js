@@ -1,9 +1,9 @@
 import { EmbedBuilder } from "discord.js";
 import { executeModAction } from "../../utils/modAction.js";
 
-export const name = "warn";
+export const name = "kick";
 export const ownerOnly = true;
-export const description = "Warns a user and records the case in their modlog.";
+export const description = "Kicks a user from the server and records the case.";
 
 /**
  * @param {import("discord.js").Message} message
@@ -12,12 +12,15 @@ export const description = "Warns a user and records the case in their modlog.";
 export async function execute(message, args) {
   const userId = args[0]?.replace(/\D/g, "");
 
-  if (!userId || args.length < 1) {
-    const usageEmbed = new EmbedBuilder()
-      .setColor(0xf7140f)
-      .setTitle("Correct Usage")
-      .setDescription("`-warn <@user> [reason]`");
-    await message.reply({ embeds: [usageEmbed] });
+  if (!userId) {
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0xf7140f)
+          .setTitle("Correct Usage")
+          .setDescription("`-kick <@user> [reason]`"),
+      ],
+    });
     return;
   }
 
@@ -38,5 +41,17 @@ export async function execute(message, args) {
   }
 
   const member = await message.guild?.members.fetch(userId).catch(() => null);
-  await executeModAction({ message, user, member, type: "warn", reason });
+
+  if (!member) {
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0xf7140f)
+          .setDescription("❌ That user is not in this server."),
+      ],
+    });
+    return;
+  }
+
+  await executeModAction({ message, user, member, type: "kick", reason });
 }

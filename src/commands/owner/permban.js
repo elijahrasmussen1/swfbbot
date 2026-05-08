@@ -1,9 +1,9 @@
 import { EmbedBuilder } from "discord.js";
 import { executeModAction } from "../../utils/modAction.js";
 
-export const name = "warn";
+export const name = "permban";
 export const ownerOnly = true;
-export const description = "Warns a user and records the case in their modlog.";
+export const description = "Permanently bans a user and records the case as a permban.";
 
 /**
  * @param {import("discord.js").Message} message
@@ -12,12 +12,15 @@ export const description = "Warns a user and records the case in their modlog.";
 export async function execute(message, args) {
   const userId = args[0]?.replace(/\D/g, "");
 
-  if (!userId || args.length < 1) {
-    const usageEmbed = new EmbedBuilder()
-      .setColor(0xf7140f)
-      .setTitle("Correct Usage")
-      .setDescription("`-warn <@user> [reason]`");
-    await message.reply({ embeds: [usageEmbed] });
+  if (!userId) {
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0xf7140f)
+          .setTitle("Correct Usage")
+          .setDescription("`-permban <@user> [reason]`"),
+      ],
+    });
     return;
   }
 
@@ -38,5 +41,5 @@ export async function execute(message, args) {
   }
 
   const member = await message.guild?.members.fetch(userId).catch(() => null);
-  await executeModAction({ message, user, member, type: "warn", reason });
+  await executeModAction({ message, user, member, type: "permban", reason });
 }
