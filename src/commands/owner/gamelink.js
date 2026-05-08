@@ -9,7 +9,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const IMAGE_PATH = join(__dirname, "../../../../images/sonion.png");
+const IMAGE_PATH = join(__dirname, "../../../images/sonion.png");
 const IMAGE_NAME = "sonion.png";
 
 export const name = "gamelink";
