@@ -70,3 +70,42 @@ export function getCases(userId) {
   const { cases } = load();
   return cases.filter((c) => c.userId === userId);
 }
+
+/**
+ * Get a single case by its numeric ID.
+ * @param {number} caseId
+ * @returns {CaseEntry | null}
+ */
+export function getCaseById(caseId) {
+  const { cases } = load();
+  return cases.find((c) => c.caseId === caseId) ?? null;
+}
+
+/**
+ * Update only the reason of an existing case.
+ * @param {number} caseId
+ * @param {string} newReason
+ * @returns {CaseEntry | null}
+ */
+export function updateCaseReason(caseId, newReason) {
+  const data = load();
+  const entry = data.cases.find((c) => c.caseId === caseId);
+  if (!entry) return null;
+  entry.reason = newReason;
+  save(data);
+  return entry;
+}
+
+/**
+ * Delete a case by its numeric ID.
+ * @param {number} caseId
+ * @returns {boolean} true if a case was removed
+ */
+export function deleteCase(caseId) {
+  const data = load();
+  const before = data.cases.length;
+  data.cases = data.cases.filter((c) => c.caseId !== caseId);
+  if (data.cases.length === before) return false;
+  save(data);
+  return true;
+}
