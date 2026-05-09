@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { addCase, getCases } from "./modlog.js";
 
 const OWNER_IDS = (process.env.OWNER_IDS ?? "").split(",").map((id) => id.trim()).filter(Boolean);
@@ -112,14 +112,20 @@ export async function executeModAction({ message, user, member, type, reason, mu
           `**You have received ${actionLabel}.**\n\n` +
           `${DEV_EMOJI} [SFFB] ${teamTag} **Reason:** ${reason}\n\n` +
           `${DEV_EMOJI} [SFFB] AquaForge Studios\n` +
-          `This punishment has been sent out by the AquaForge Team ${teamTag} and is appealable at anytime.\n\n` +
-          `[Appeal](${APPEAL_URL})`
+          `This punishment has been sent out by the AquaForge Team ${teamTag} and is appealable at anytime.`
         )
         .setFooter({
           text: `You have ${modlogCount} modlog${modlogCount === 1 ? "" : "s"}.\nCreated at ${formatFullDate(caseDate)}`,
         });
 
-      dmPayload = { embeds: [dmEmbed] };
+      const appealRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("Appeal")
+          .setURL(APPEAL_URL)
+          .setStyle(ButtonStyle.Link)
+      );
+
+      dmPayload = { embeds: [dmEmbed], components: [appealRow] };
     } else {
       const dmEmbed = new EmbedBuilder()
         .setColor(0xf7140f)
