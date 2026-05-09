@@ -1,4 +1,13 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import {
+  EmbedBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  SectionBuilder,
+  TextDisplayBuilder,
+  SeparatorBuilder,
+  MessageFlags,
+} from "discord.js";
 import { addCase, getCases } from "./modlog.js";
 
 const OWNER_IDS = (process.env.OWNER_IDS ?? "").split(",").map((id) => id.trim()).filter(Boolean);
@@ -100,32 +109,43 @@ export async function executeModAction({ message, user, member, type, reason, mu
     let dmPayload;
 
     if (type === "ban" || type === "permban" || type === "unban") {
-      // Count all modlogs for this user (including the one just added)
       const modlogCount = getCases(user.id).length;
       const actionLabel = type === "unban" ? "an unban" : "a ban";
       const teamTag = isOwner ? "(O)" : "(D)";
 
-      const dmEmbed = new EmbedBuilder()
-        .setColor(0xf7140f)
-        .setTitle(`Case #${entry.caseId}`)
-        .setDescription(
-          `**You have received ${actionLabel}.**\n\n` +
-          `${DEV_EMOJI} [SFFB] ${teamTag} **Reason:** ${reason}\n\n` +
-          `${DEV_EMOJI} [SFFB] AquaForge Studios\n` +
-          `This punishment has been sent out by the AquaForge Team ${teamTag} and is appealable at anytime.`
+      const dmContainer = new ContainerBuilder()
+        .setAccentColor(0xf7140f)
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`**Case #${entry.caseId}**`)
         )
-        .setFooter({
-          text: `You have ${modlogCount} modlog${modlogCount === 1 ? "" : "s"}.\nCreated at ${formatFullDate(caseDate)}`,
-        });
+        .addSectionComponents(
+          new SectionBuilder()
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                `**You have received ${actionLabel}.**\n\n` +
+                `${DEV_EMOJI} [SFFB] ${teamTag} **Reason:** ${reason}\n\n` +
+                `${DEV_EMOJI} [SFFB] AquaForge Studios\n` +
+                `This punishment has been sent out by the AquaForge Team ${teamTag} and is appealable at anytime.`
+              )
+            )
+            .setButtonAccessory(
+              new ButtonBuilder()
+                .setLabel("Appeal")
+                .setURL(APPEAL_URL)
+                .setStyle(ButtonStyle.Link)
+            )
+        )
+        .addSeparatorComponents(new SeparatorBuilder())
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `-# You have ${modlogCount} modlog${modlogCount === 1 ? "" : "s"}. • Created at ${formatFullDate(caseDate)}`
+          )
+        );
 
-      const appealRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setLabel("Appeal")
-          .setURL(APPEAL_URL)
-          .setStyle(ButtonStyle.Link)
-      );
-
-      dmPayload = { embeds: [dmEmbed], components: [appealRow] };
+      dmPayload = {
+        components: [dmContainer],
+        flags: MessageFlags.IsComponentsV2,
+      };
     } else {
       const dmEmbed = new EmbedBuilder()
         .setColor(0xf7140f)
