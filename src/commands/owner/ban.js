@@ -3,7 +3,7 @@ import { executeModAction } from "../../utils/modAction.js";
 
 export const name = "ban";
 export const ownerOnly = true;
-export const description = "Bans a user from the server and records the case.";
+export const description = "Permanently bans a user from the server and records the case.";
 
 /**
  * @param {import("discord.js").Message} message

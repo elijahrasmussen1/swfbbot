@@ -7,7 +7,7 @@ const DATA_DIR = join(__dirname, "../../data");
 const MODLOG_FILE = join(DATA_DIR, "modlog.json");
 
 /**
- * @typedef {"warn"|"ban"|"mute"|"unmute"|"kick"|"permban"} ActionType
+ * @typedef {"warn"|"ban"|"mute"|"unmute"|"kick"|"permban"|"unban"} ActionType
  *
  * @typedef {{
  *   caseId: number,
