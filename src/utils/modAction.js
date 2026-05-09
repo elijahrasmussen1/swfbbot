@@ -110,7 +110,7 @@ export async function executeModAction({ message, user, member, type, reason, mu
         .setTitle(`Case #${entry.caseId}`)
         .setDescription(
           `**You have received ${actionLabel}.**\n\n` +
-          `**Reason:** ${DEV_EMOJI} [SFFB] ${teamTag} ${reason}\n\n` +
+          `${DEV_EMOJI} [SFFB] ${teamTag} **Reason:** ${reason}\n\n` +
           `${DEV_EMOJI} [SFFB] AquaForge Studios\n` +
           `This punishment has been sent out by the AquaForge Team ${teamTag} and is appealable at anytime.`
         )
