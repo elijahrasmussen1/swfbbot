@@ -32,10 +32,8 @@ export async function execute(message, args) {
   }
 
   const robloxUsername = record.robloxUsername ?? "Unknown";
-  const robloxId = record.robloxId ?? "Unknown";
-  const profileUrl = record.robloxId
-    ? `https://www.roblox.com/users/${record.robloxId}/profile`
-    : "N/A";
+  const robloxId = record.robloxUserId ?? record.robloxId ?? "unknown";
+  const profileUrl = `https://www.roblox.com/users/${robloxId}/profile`;
 
   await message.channel.send(
     `Roblox: ${robloxUsername} | ${robloxId} | ${profileUrl}`
