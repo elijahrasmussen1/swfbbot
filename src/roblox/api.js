@@ -70,3 +70,32 @@ export async function publishMessage(topic, payload) {
     message: JSON.stringify(payload),
   });
 }
+
+/**
+ * Game-bans a Roblox user from the configured universe via the Open Cloud v2
+ * user-restrictions API. The ban is permanent (no expiry).
+ *
+ * Requires the API key to have "Manage User Restrictions" permission.
+ *
+ * @param {string|number} robloxUserId  The numeric Roblox user ID to ban.
+ * @param {string}        reason        Reason shown to the player and stored privately.
+ * @returns {Promise<object>}           The user-restriction resource returned by the API.
+ */
+export async function gameBanUser(robloxUserId, reason) {
+  const universeId = process.env.ROBLOX_UNIVERSE_ID;
+  if (!universeId) throw new Error("ROBLOX_UNIVERSE_ID is not set.");
+
+  const client = createClient();
+  const { data } = await client.patch(
+    `/universes/${universeId}/user-restrictions/${robloxUserId}`,
+    {
+      gameJoinRestriction: {
+        active: true,
+        privateReason: reason,
+        displayReason: reason,
+      },
+    },
+    { params: { updateMask: "gameJoinRestriction" } }
+  );
+  return data;
+}
