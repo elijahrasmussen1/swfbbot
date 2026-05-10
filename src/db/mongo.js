@@ -73,3 +73,18 @@ export async function getRobloxAccount(discordId) {
   const user = await getVerifiedUser(discordId);
   return user?.robloxUsername ?? user?.robloxId ?? null;
 }
+
+/**
+ * Fetch the full verification document for a Roblox username.
+ * Returns null if the user is not found.
+ * @param {string} robloxUsername
+ * @returns {Promise<object | null>}
+ */
+export async function getVerifiedUserByRobloxUsername(robloxUsername) {
+  try {
+    return await usersCollection().findOne({ robloxUsername });
+  } catch (err) {
+    console.error("[MongoDB] getVerifiedUserByRobloxUsername error:", err);
+    return null;
+  }
+}
