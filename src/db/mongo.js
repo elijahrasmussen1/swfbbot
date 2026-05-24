@@ -88,3 +88,37 @@ export async function getVerifiedUserByRobloxUsername(robloxUsername) {
     return null;
   }
 }
+
+/**
+ * Upsert an identified user into the database.
+ * Creates a stub document with mostly empty/N-A fields if the user doesn't exist yet.
+ * @param {object} data
+ * @param {string} data.discordId
+ * @param {string} [data.discordUsername]
+ * @returns {Promise<object>} The upserted document
+ */
+export async function identifyUser({ discordId, discordUsername }) {
+  try {
+    const now = new Date().toISOString();
+    const result = await usersCollection().findOneAndUpdate(
+      { discordId },
+      {
+        $setOnInsert: {
+          _id: discordId,
+          alts: [],
+          discordEmail: "N/A",
+          discordUsername: discordUsername ?? "N/A",
+          robloxUserId: "N/A",
+          robloxUsername: "N/A",
+          verifiedAt: "N/A",
+        },
+        $set: { updatedAt: now },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+    return result;
+  } catch (err) {
+    console.error("[MongoDB] identifyUser error:", err);
+    throw err;
+  }
+}
