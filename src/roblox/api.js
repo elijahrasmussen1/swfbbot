@@ -99,3 +99,32 @@ export async function gameBanUser(robloxUserId, reason) {
   );
   return data;
 }
+
+/**
+ * Removes a game-ban (unbans) a Roblox user from the configured universe via
+ * the Open Cloud v2 user-restrictions API.
+ *
+ * Requires the API key to have "Manage User Restrictions" permission.
+ *
+ * @param {string|number} robloxUserId  The numeric Roblox user ID to unban.
+ * @param {string}        reason        Reason for the unban.
+ * @returns {Promise<object>}           The user-restriction resource returned by the API.
+ */
+export async function gameUnbanUser(robloxUserId, reason) {
+  const universeId = process.env.ROBLOX_UNIVERSE_ID;
+  if (!universeId) throw new Error("ROBLOX_UNIVERSE_ID is not set.");
+
+  const client = createClient();
+  const { data } = await client.patch(
+    `/universes/${universeId}/user-restrictions/${robloxUserId}`,
+    {
+      gameJoinRestriction: {
+        active: false,
+        privateReason: reason,
+        displayReason: reason,
+      },
+    },
+    { params: { updateMask: "gameJoinRestriction" } }
+  );
+  return data;
+}

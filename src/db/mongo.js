@@ -122,3 +122,27 @@ export async function identifyUser({ discordId, discordUsername }) {
     throw err;
   }
 }
+
+/**
+ * Update an identified user's Roblox information in the database.
+ * @param {string} discordId
+ * @param {string} robloxUserId
+ * @param {string} [robloxUsername]
+ * @returns {Promise<object|null>} The updated document, or null if not found
+ */
+export async function updateIdentifiedUserRoblox(discordId, robloxUserId, robloxUsername) {
+  try {
+    const now = new Date().toISOString();
+    const updateFields = { robloxUserId, updatedAt: now };
+    if (robloxUsername) updateFields.robloxUsername = robloxUsername;
+    const result = await usersCollection().findOneAndUpdate(
+      { discordId },
+      { $set: updateFields },
+      { returnDocument: "after" }
+    );
+    return result;
+  } catch (err) {
+    console.error("[MongoDB] updateIdentifiedUserRoblox error:", err);
+    throw err;
+  }
+}

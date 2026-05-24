@@ -1,28 +1,44 @@
 import { EmbedBuilder } from "discord.js";
-import { getVerifiedUser } from "../../db/mongo.js";
+import { getVerifiedUser, updateIdentifiedUserRoblox } from "../../db/mongo.js";
+import axios from "axios";
 
 export const name = "irb";
 export const ownerOnly = true;
-export const description = "Looks up the Roblox account linked to an identified Discord user.";
+export const description = "Links a Roblox ID to an identified Discord user in the database.";
+
+/**
+ * Attempt to fetch the Roblox username for a given Roblox user ID.
+ * @param {string} robloxUserId
+ * @returns {Promise<string|null>}
+ */
+async function fetchRobloxUsername(robloxUserId) {
+  try {
+    const { data } = await axios.get(`https://users.roblox.com/v1/users/${robloxUserId}`);
+    return data?.name ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * @param {import("discord.js").Message} message
  * @param {string[]} args
  */
 export async function execute(message, args) {
-  if (!args[0]) {
+  if (!args[0] || !args[1]) {
     await message.reply({
       embeds: [
         new EmbedBuilder()
           .setColor(0xf7140f)
           .setTitle("Correct Usage")
-          .setDescription("`-irb <@mention | Discord ID>`"),
+          .setDescription("`-irb <@mention | Discord ID> <robloxID>`"),
       ],
     });
     return;
   }
 
   const discordId = args[0].replace(/\D/g, "");
+  const robloxUserId = args[1].replace(/\D/g, "");
 
   if (!discordId) {
     await message.reply({
@@ -35,11 +51,15 @@ export async function execute(message, args) {
     return;
   }
 
-  let user;
-  try {
-    user = await message.client.users.fetch(discordId);
-  } catch {
-    user = null;
+  if (!robloxUserId) {
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0xf7140f)
+          .setDescription("❌ Invalid Roblox ID."),
+      ],
+    });
+    return;
   }
 
   const doc = await getVerifiedUser(discordId);
@@ -57,28 +77,29 @@ export async function execute(message, args) {
     return;
   }
 
-  const robloxUsername = doc.robloxUsername ?? "N/A";
-  const robloxUserId = doc.robloxUserId ?? "N/A";
-  const verifiedAt = doc.verifiedAt ?? "N/A";
-  const alts = doc.alts?.length ? doc.alts.join(", ") : "None";
+  // Try to fetch roblox username from Roblox API
+  const robloxUsername = await fetchRobloxUsername(robloxUserId);
 
-  const embed = new EmbedBuilder()
-    .setColor(0x0a84ff)
-    .setTitle("Identify Roblox — Lookup")
-    .addFields(
-      { name: "Discord Username", value: user?.username ?? doc.discordUsername ?? "N/A", inline: true },
-      { name: "Discord ID", value: discordId, inline: true },
-      { name: "\u200b", value: "\u200b", inline: true },
-      { name: "Roblox Username", value: robloxUsername, inline: true },
-      { name: "Roblox User ID", value: String(robloxUserId), inline: true },
-      { name: "Verified At", value: verifiedAt, inline: true },
-      { name: "Alts", value: alts, inline: false },
-    )
-    .setTimestamp();
+  try {
+    await updateIdentifiedUserRoblox(discordId, robloxUserId, robloxUsername);
 
-  if (user) {
-    embed.setThumbnail(user.displayAvatarURL({ size: 128 }));
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0x57f287)
+          .setTitle("✅ Identified")
+          .setDescription("This user has been added to the database.")
+          .setFooter({ text: `Today at ${new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}` }),
+      ],
+    });
+  } catch (err) {
+    console.error("[irb] DB error:", err);
+    await message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(0xf7140f)
+          .setDescription("❌ Failed to update the Roblox information in the database."),
+      ],
+    });
   }
-
-  await message.channel.send({ embeds: [embed] });
 }

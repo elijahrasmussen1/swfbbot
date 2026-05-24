@@ -59,16 +59,12 @@ export async function execute(message, args) {
       embeds: [
         new EmbedBuilder()
           .setColor(0x57f287)
-          .setTitle("✅ User Identified")
-          .setThumbnail(user.displayAvatarURL({ size: 128 }))
+          .setTitle("✅ Identified")
+          .setDescription("This user has been added to the database.")
           .addFields(
-            { name: "Discord Username", value: user.username, inline: true },
-            { name: "Discord ID", value: discordId, inline: true },
-            { name: "Roblox Username", value: doc?.robloxUsername ?? "N/A", inline: true },
-            { name: "Roblox User ID", value: doc?.robloxUserId ?? "N/A", inline: true },
-            { name: "Verified At", value: doc?.verifiedAt ?? "N/A", inline: true },
+            { name: "Roblox ID", value: doc?.robloxUserId ?? "N/A", inline: true },
           )
-          .setTimestamp(),
+          .setFooter({ text: `Today at ${new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}` }),
       ],
     });
   } catch (err) {
