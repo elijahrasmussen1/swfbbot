@@ -55,8 +55,8 @@ export async function execute(message, args) {
     return;
   }
 
-  // Log to modlog
-  addCase(robloxUserId, "unban", reason, message.author.id);
+  // Log to modlog (using robloxUserId since this is a game-level action, not a Discord action)
+  addCase(robloxUserId, "gameunban", reason, message.author.id);
 
   await message.reply({
     embeds: [

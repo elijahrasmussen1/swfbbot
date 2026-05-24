@@ -87,8 +87,8 @@ export async function execute(message, args) {
       embeds: [
         new EmbedBuilder()
           .setColor(0x57f287)
-          .setTitle("✅ Identified")
-          .setDescription("This user has been added to the database.")
+          .setTitle("✅ Roblox ID Linked")
+          .setDescription(`Roblox ID \`${robloxUserId}\`${robloxUsername ? ` (${robloxUsername})` : ""} has been linked to this user.`)
           .setFooter({ text: `Today at ${new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}` }),
       ],
     });
