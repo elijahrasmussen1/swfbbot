@@ -50,10 +50,16 @@ export async function execute(message, _args) {
     return;
   }
 
-  await leakChannel.send({
+  const sent = await leakChannel.send({
     content: "@everyone\n\nnew leak posted!",
     files: attachments.map((a) => ({ attachment: a.url, name: a.name })),
   });
+
+  try {
+    await sent.react("🔥");
+  } catch {
+    // Missing permissions to react — silently ignore
+  }
 
   try {
     await message.delete();
